@@ -755,14 +755,18 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
             }
         }
 
-        protected void AddFile(string filename, SourceCodeKind sourceCodeKind, Func<IVisualStudioHostDocument, bool> getIsCurrentContext, IReadOnlyList<string> folderNames)
+        protected void AddFile(
+            string filename,
+            SourceCodeKind sourceCodeKind,
+            Func<IVisualStudioHostDocument, bool> getIsCurrentContext,
+            Func<uint, IReadOnlyList<string>> getFolderNames)
         {
             var document = this.DocumentProvider.TryGetDocumentForFile(
                 this,
-                folderNames,
                 filePath: filename,
                 sourceCodeKind: sourceCodeKind,
-                canUseTextBuffer: CanUseTextBuffer);
+                canUseTextBuffer: CanUseTextBuffer,
+                getFolderNames: getFolderNames);
 
             if (document == null)
             {

@@ -83,10 +83,10 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
 
         public IVisualStudioHostDocument TryGetDocumentForFile(
             IVisualStudioHostProject hostProject,
-            IReadOnlyList<string> folderNames,
             string filePath,
             SourceCodeKind sourceCodeKind,
-            Func<ITextBuffer, bool> canUseTextBuffer)
+            Func<ITextBuffer, bool> canUseTextBuffer,
+            Func<uint, IReadOnlyList<string>> getFolderNames)
         {
             var documentKey = new DocumentKey(hostProject, filePath);
             StandardTextDocument document;
@@ -138,7 +138,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
                 this,
                 hostProject,
                 documentKey,
-                folderNames,
+                getFolderNames,
                 sourceCodeKind,
                 _textUndoHistoryRegistry,
                 _fileChangeService,

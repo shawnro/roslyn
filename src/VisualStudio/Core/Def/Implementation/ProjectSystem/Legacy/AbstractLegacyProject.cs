@@ -45,9 +45,12 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.L
                   hostDiagnosticUpdateSourceOpt: hostDiagnosticUpdateSourceOpt,
                   commandLineParserServiceOpt: commandLineParserServiceOpt)
         {
-            ProjectType = GetProjectType(hierarchy);
-            ConnectHierarchyEvents();
-            this.IsWebSite = GetIsWebsiteProject(hierarchy);
+            if (Hierarchy != null)
+            {
+                ProjectType = GetProjectType(Hierarchy);
+                ConnectHierarchyEvents();
+                this.IsWebSite = GetIsWebsiteProject(Hierarchy);
+            }
 
             // Initialize command line arguments.
             base.SetArguments(commandlineForOptions: string.Empty);
@@ -61,10 +64,10 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.L
             DisconnectHierarchyEvents();
         }
 
-        protected void AddFile(string filename, SourceCodeKind sourceCodeKind, uint itemId)
+        protected void AddFile(string filename, SourceCodeKind sourceCodeKind)
         {
             Func<IVisualStudioHostDocument, bool> getIsCurrentContext = document => LinkedFileUtilities.IsCurrentContextHierarchy(document, RunningDocumentTable);
-            AddFile(filename, sourceCodeKind, getIsCurrentContext, GetFolderNames(itemId));
+            AddFile(filename, sourceCodeKind, getIsCurrentContext, GetFolderNames);
         }
 
         protected sealed override bool TryGetOutputPathFromHierarchy(out string binOutputPath)
