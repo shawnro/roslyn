@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -66,7 +67,9 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
                 _pushedProjects.Clear();
             }
 
-            internal void StartPushingToWorkspaceAndNotifyOfOpenDocuments(IEnumerable<AbstractProject> projects)
+            internal void StartPushingToWorkspaceAndNotifyOfOpenDocuments(
+                IEnumerable<AbstractProject> projects,
+                Func<AbstractProject, ProjectInfo> getProjectInfo)
             {
                 // If the workspace host isn't actually ready yet, we shouldn't do anything.
                 // Also, if the solution is closing we shouldn't do anything either, because all of our state is
@@ -87,7 +90,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
                     AddToPushListIfNeeded(project, inOrderToPush, visited);
                 }
 
-                var projectInfos = inOrderToPush.Select(p => p.CreateProjectInfoForCurrentState()).ToImmutableArray();
+                var projectInfos = inOrderToPush.Select(p => getProjectInfo(p)).ToImmutableArray();
 
                 if (!_solutionAdded)
                 {

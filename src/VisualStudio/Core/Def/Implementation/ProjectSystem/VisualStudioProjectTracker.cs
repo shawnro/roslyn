@@ -32,6 +32,11 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
         private readonly IVsRunningDocumentTable4 _runningDocumentTable;
 
         /// <summary>
+        /// TODO: Figure out the right way to get this to the MSBuildProjectLoader.
+        /// </summary>
+        private readonly Workspace _workspace;
+
+        /// <summary>
         /// The list of projects loaded in this batch between <see cref="IVsSolutionLoadEvents.OnBeforeLoadProjectBatch" /> and
         /// <see cref="IVsSolutionLoadEvents.OnAfterLoadProjectBatch(bool)"/>.
         /// </summary>
@@ -60,18 +65,26 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
         void IVisualStudioHostProjectContainer.NotifyNonDocumentOpenedForProject(IVisualStudioHostProject project)
         {
             var abstractProject = (AbstractProject)project;
-            StartPushingToWorkspaceAndNotifyOfOpenDocuments(SpecializedCollections.SingletonEnumerable(abstractProject));
+            StartPushingToWorkspaceAndNotifyOfOpenDocuments(SpecializedCollections.SingletonEnumerable(abstractProject), s_getProjectInfoForProject);
         }
+
+        private static readonly Func<AbstractProject, ProjectInfo> s_getProjectInfoForProject = GetProjectInfoForProject;
+        private static ProjectInfo GetProjectInfoForProject(AbstractProject project)
+        {
+            return project.CreateProjectInfoForCurrentState();
+        }
+
 
         private uint? _solutionEventsCookie;
 
-        public VisualStudioProjectTracker(IServiceProvider serviceProvider)
+        public VisualStudioProjectTracker(IServiceProvider serviceProvider, Workspace workspace)
         {
             _projectMap = new Dictionary<ProjectId, AbstractProject>();
             _projectPathToIdMap = new Dictionary<string, ProjectId>(StringComparer.OrdinalIgnoreCase);
 
             _serviceProvider = serviceProvider;
             _workspaceHosts = new List<WorkspaceHostState>(capacity: 1);
+            _workspace = workspace;
 
             _vsSolution = (IVsSolution)serviceProvider.GetService(typeof(SVsSolution));
             _runningDocumentTable = (IVsRunningDocumentTable4)serviceProvider.GetService(typeof(SVsRunningDocumentTable));
@@ -165,7 +178,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
             var interactiveProjects = _projectMap.Values.Where(p => p.PushingChangesToWorkspaceHosts);
             if (interactiveProjects.Any())
             {
-                hostData.StartPushingToWorkspaceAndNotifyOfOpenDocuments(interactiveProjects);
+                hostData.StartPushingToWorkspaceAndNotifyOfOpenDocuments(interactiveProjects, s_getProjectInfoForProject);
             }
         }
 
@@ -205,7 +218,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
 
             if (_solutionLoadComplete)
             {
-                StartPushingToWorkspaceAndNotifyOfOpenDocuments(SpecializedCollections.SingletonEnumerable(project));
+                StartPushingToWorkspaceAndNotifyOfOpenDocuments(SpecializedCollections.SingletonEnumerable(project), s_getProjectInfoForProject);
             }
             else
             {
@@ -213,13 +226,13 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
             }
         }
 
-        internal void StartPushingToWorkspaceAndNotifyOfOpenDocuments(IEnumerable<AbstractProject> projects)
+        internal void StartPushingToWorkspaceAndNotifyOfOpenDocuments(IEnumerable<AbstractProject> projects, Func<AbstractProject, ProjectInfo> getProjectInfo)
         {
             using (Dispatcher.CurrentDispatcher.DisableProcessing())
             {
                 foreach (var hostState in _workspaceHosts)
                 {
-                    hostState.StartPushingToWorkspaceAndNotifyOfOpenDocuments(projects);
+                    hostState.StartPushingToWorkspaceAndNotifyOfOpenDocuments(projects, getProjectInfo);
                 }
             }
         }

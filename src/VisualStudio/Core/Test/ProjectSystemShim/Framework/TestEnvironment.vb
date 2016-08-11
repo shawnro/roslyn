@@ -38,8 +38,8 @@ Namespace Microsoft.VisualStudio.LanguageServices.UnitTests.ProjectSystemShim.Fr
 
             _monitorSelectionMock = New MockShellMonitorSelection(solutionIsFullyLoaded)
             _serviceProvider = New MockServiceProvider(_monitorSelectionMock)
-            _projectTracker = New VisualStudioProjectTracker(_serviceProvider)
             _workspace = New TestWorkspace()
+            _projectTracker = New VisualStudioProjectTracker(_serviceProvider, _workspace)
             _projectTracker.MetadataReferenceProvider = New VisualStudioMetadataReferenceManager(_serviceProvider, _workspace.Services.GetService(Of ITemporaryStorageService)())
             _projectTracker.RuleSetFileProvider = New VisualStudioRuleSetManager(
                 DirectCast(_serviceProvider.GetService(GetType(SVsFileChangeEx)), IVsFileChangeEx),
