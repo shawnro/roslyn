@@ -50,6 +50,8 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
 
         int IVsSolutionEvents.OnBeforeCloseSolution(object pUnkReserved)
         {
+            AssertIsForeground();
+
             _solutionIsClosing = true;
 
             foreach (var p in _projectMap.Values)
