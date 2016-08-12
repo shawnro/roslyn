@@ -58,7 +58,6 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
             }
 
             _solutionLoadComplete = false;
-            _solutionFilename = null;
             _solutionParsingCancellationTokenSource.Cancel();
             _solutionParsingCancellationTokenSource = new CancellationTokenSource();
 

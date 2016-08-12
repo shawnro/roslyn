@@ -300,6 +300,12 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
             }
         }
 
+        private void AddProjectIdForPath(string projectPath, string projectSystemName, ProjectId projectId)
+        {
+            string key = projectPath + projectSystemName;
+            _projectPathToIdMap.Add(key, projectId);
+        }
+
         internal ProjectId GetOrCreateProjectIdForPath(string projectPath, string projectSystemName)
         {
             string key = projectPath + projectSystemName;

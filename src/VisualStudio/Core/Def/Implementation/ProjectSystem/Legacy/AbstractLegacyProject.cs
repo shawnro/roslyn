@@ -115,7 +115,7 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.L
             return hierarchy.TryGetName(out name) ? name : null;
         }
 
-        private static string GetProjectFilePath(IVsHierarchy hierarchy)
+        internal static string GetProjectFilePath(IVsHierarchy hierarchy)
         {
             string filePath;
             return ErrorHandler.Succeeded(((IVsProject3)hierarchy).GetMkDocument((uint)VSConstants.VSITEMID.Root, out filePath)) ? filePath : null;
