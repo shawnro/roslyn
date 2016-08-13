@@ -301,10 +301,18 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
             }
         }
 
-        private void AddProjectIdForPath(string projectPath, string projectSystemName, ProjectId projectId)
+        private bool TryAddProjectIdForPath(string projectPath, string projectSystemName, ProjectId projectId)
         {
             string key = projectPath + projectSystemName;
-            _projectPathToIdMap.Add(key, projectId);
+            if (!_projectPathToIdMap.ContainsKey(key))
+            {
+                _projectPathToIdMap.Add(key, projectId);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         internal ProjectId GetOrCreateProjectIdForPath(string projectPath, string projectSystemName)
