@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.Shell.Interop;
 using Roslyn.Utilities;
@@ -68,6 +69,16 @@ namespace Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem
 
         int IVsSolutionEvents.OnAfterCloseSolution(object pUnkReserved)
         {
+            if (_deferredProjectLoadIsEnabled)
+            {
+                // Copy to avoid modifying the collection while enumerating
+                var loadedProjects = Projects.ToList();
+                foreach (var p in loadedProjects)
+                {
+                    p.Disconnect();
+                }
+            }
+
             Contract.ThrowIfFalse(_projectMap.Count == 0);
 
             NotifyWorkspaceHosts(host => host.OnSolutionRemoved());
