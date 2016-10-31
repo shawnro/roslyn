@@ -41,7 +41,7 @@ try
     switch ($branchName)
     {
         "dev15-rc" { } 
-        "refs/pull/14800/head" {}
+        "fix-vbcs-ngen" {}
         default
         {
             if (-not $test)
