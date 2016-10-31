@@ -41,6 +41,7 @@ try
     switch ($branchName)
     {
         "dev15-rc" { } 
+        "refs/pull/14800/head" {}
         default
         {
             if (-not $test)
